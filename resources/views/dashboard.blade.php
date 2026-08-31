@@ -61,19 +61,39 @@
             <div class="bg-surface border border-denim/10 rounded-xl shadow-sm p-6">
                 <h3 class="font-display font-semibold text-denim mb-8">Grafik Distribusi 6 Bulan Terakhir</h3>
 
-                @php $max = max($chartData->max('total'), 1); @endphp
+                @php
+                    $max = max($chartData->max('total'), 1);
+                    // Kalau datanya <=6 bulan, kolom melebar mengisi penuh area card (flex-1), container
+                    // full width tanpa scroll -> sama seperti tampilan awal.
+                    // Begitu datanya >6 bulan, tiap kolom dikunci lebar = (100% lebar container - gap)/6,
+                    // BUKAN angka px tetap. Karena basis-nya persentase dari lebar container (bukan
+                    // dibagi rata ke seluruh kolom yang ada), 9 kolom x masing-masing "1/6 container"
+                    // otomatis totalnya 150% lebar container -> overflow & scrollable di layar manapun,
+                    // sementara container sendiri tetap full width mengikuti card (nggak ada max-w).
+                    $isOverflowing = $chartData->count() > 6;
+                @endphp
 
-                <div class="flex items-end gap-3 sm:gap-6 h-64">
-                    @foreach ($chartData as $item)
-                        <div class="flex-1 flex flex-col items-center justify-end h-full">
-                            <span class="font-mono text-xs text-ink/60 mb-1">{{ $item['total'] }}</span>
-                            <div
-                                class="w-full max-w-12 bg-thread rounded-t transition-all"
-                                style="height: {{ $item['total'] > 0 ? max(($item['total'] / $max) * 100, 4) : 0 }}%"
-                            ></div>
-                            <span class="font-sans text-xs text-ink/50 mt-2">{{ $item['label'] }}</span>
-                        </div>
-                    @endforeach
+                <div
+                    class="overflow-x-auto pb-1"
+                    x-data
+                    x-init="$el.scrollLeft = $el.scrollWidth"
+                >
+                    <div class="flex items-end gap-3 sm:gap-6 h-64">
+                        @foreach ($chartData as $item)
+                            <div @class([
+                                'flex flex-col items-center justify-end h-full',
+                                'flex-1 min-w-[4.5rem]' => ! $isOverflowing,
+                                'shrink-0 w-[calc((100%-3.75rem)/6)] sm:w-[calc((100%-7.5rem)/6)]' => $isOverflowing,
+                            ])>
+                                <span class="font-mono text-xs text-ink/60 mb-1">{{ $item['total'] }}</span>
+                                <div
+                                    class="w-full max-w-12 bg-thread rounded-t transition-all"
+                                    style="height: {{ $item['total'] > 0 ? max(($item['total'] / $max) * 100, 4) : 0 }}%"
+                                ></div>
+                                <span class="font-sans text-xs text-ink/50 mt-2 whitespace-nowrap">{{ $item['label'] }}</span>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Distribution;
 use App\Models\Product;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -16,19 +17,28 @@ class DashboardController extends Controller
         $totalDistributions = Distribution::count();
         $todayDistributions = Distribution::whereDate('distribution_date', today())->count();
 
+        $earliestDistributionDate = Distribution::min('distribution_date');
+
+        $chartStart = $earliestDistributionDate
+            ? Carbon::parse($earliestDistributionDate)->startOfMonth()
+            : now()->startOfMonth();
+
         $monthlyTotals = Distribution::selectRaw("DATE_FORMAT(distribution_date, '%Y-%m') as month, SUM(quantity) as total")
-            ->where('distribution_date', '>=', now()->subMonths(5)->startOfMonth())
+            ->where('distribution_date', '>=', $chartStart)
             ->groupBy('month')
             ->pluck('total', 'month');
 
-        $chartData = collect(range(5, 0))->map(function (int $monthsAgo) use ($monthlyTotals) {
-            $period = now()->subMonths($monthsAgo);
+        $chartData = collect();
+        $cursor = $chartStart->copy();
 
-            return [
-                'label' => $period->translatedFormat('M Y'),
-                'total' => (int) ($monthlyTotals[$period->format('Y-m')] ?? 0),
-            ];
-        });
+        while ($cursor->lte(now())) {
+            $chartData->push([
+                'label' => $cursor->translatedFormat('M Y'),
+                'total' => (int) ($monthlyTotals[$cursor->format('Y-m')] ?? 0),
+            ]);
+
+            $cursor->addMonth();
+        }
 
         $topProducts = Product::withSum('distributions', 'quantity')
             ->orderByDesc('distributions_sum_quantity')
