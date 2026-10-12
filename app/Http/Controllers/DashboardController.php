@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Distribution;
 use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -23,10 +24,12 @@ class DashboardController extends Controller
             ? Carbon::parse($earliestDistributionDate)->startOfMonth()
             : now()->startOfMonth();
 
-        $monthlyTotals = Distribution::selectRaw("DATE_FORMAT(distribution_date, '%Y-%m') as month, SUM(quantity) as total")
-            ->where('distribution_date', '>=', $chartStart)
-            ->groupBy('month')
-            ->pluck('total', 'month');
+        // Dikelompokkan per bulan di PHP (bukan DATE_FORMAT di SQL) supaya query tidak
+        // bergantung pada fungsi khusus MySQL dan tetap jalan di SQLite saat testing.
+        $monthlyTotals = Distribution::where('distribution_date', '>=', $chartStart)
+            ->get(['distribution_date', 'quantity'])
+            ->groupBy(fn (Distribution $distribution) => $distribution->distribution_date->format('Y-m'))
+            ->map(fn ($distributions) => $distributions->sum('quantity'));
 
         $chartData = collect();
         $cursor = $chartStart->copy();
@@ -101,23 +104,25 @@ class DashboardController extends Controller
     /**
      * Ringkasan analisis C4.5 terakhir: tanggal, jumlah produk, dan akurasi.
      *
-     * Dibaca langsung dari session hasil PredictionController::process(), bukan dihitung
-     * ulang dari data Produk/Distribusi saat ini. Session ini sudah dihapus oleh
+     * Dibaca langsung dari cache hasil PredictionController::process(), bukan dihitung
+     * ulang dari data Produk/Distribusi saat ini. Cache ini sudah dihapus oleh
      * InvalidatesPredictionCache begitu data Produk/Distribusi berubah, jadi kalau
-     * sesinya kosong berarti belum ada analisis yang valid untuk data saat ini —
+     * kosong berarti belum ada analisis yang valid untuk data saat ini —
      * Dashboard harus tampil "belum ada analisis", bukan menghitung akurasi baru
      * dari label lama yang sudah usang.
      */
     private function buildLastAnalysisSummary(): ?array
     {
-        if (! session()->has('c45_accuracy')) {
+        $analysis = Cache::get(PredictionController::ANALYSIS_CACHE_KEY);
+
+        if (! $analysis) {
             return null;
         }
 
         return [
-            'date' => session('c45_analyzed_at'),
-            'total' => session('c45_total'),
-            'accuracy' => session('c45_accuracy'),
+            'date' => Carbon::parse($analysis['analyzed_at']),
+            'total' => $analysis['total'],
+            'accuracy' => $analysis['accuracy'],
         ];
     }
 }

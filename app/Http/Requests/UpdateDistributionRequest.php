@@ -24,9 +24,21 @@ class UpdateDistributionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'distribution_date' => ['required', 'date'],
+            'distribution_date' => ['required', 'date', 'before_or_equal:today'],
             'quantity' => ['required', 'integer', 'min:1'],
             'notes' => ['nullable', 'string'],
+        ];
+    }
+
+    /**
+     * Pesan validasi khusus.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'distribution_date.before_or_equal' => 'Tanggal distribusi tidak boleh melebihi tanggal hari ini.',
         ];
     }
 

@@ -110,8 +110,8 @@ routes/
 ## Instalasi
 
 ```bash
-git clone https://github.com/KiyyKen/ery-collection.git
-cd ery-collection
+git clone https://github.com/KiyyKen/yery-collection.git
+cd yery-collection
 
 composer install
 npm install
@@ -172,7 +172,7 @@ Aplikasi dapat diakses di `http://localhost:8000`.
 
 | Email | Password |
 |---|---|
-| `admin@erycollection.test` | `password` |
+| `admin@yerycollection.test` | `password` |
 
 *(sesuai `database/seeders/DatabaseSeeder.php`)*
 

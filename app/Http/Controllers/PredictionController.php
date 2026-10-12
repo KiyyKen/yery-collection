@@ -5,9 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Services\C45Classifier;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 
 class PredictionController extends Controller
 {
+    /**
+     * Key cache tempat ringkasan analisis C4.5 terakhir disimpan (pohon, akurasi, threshold).
+     *
+     * Disimpan di cache aplikasi (tabel `cache`), bukan session, supaya tetap ada setelah
+     * logout/login ulang — sama seperti predicted_label yang tersimpan di tabel products.
+     * Dihapus oleh Concerns\InvalidatesPredictionCache begitu data Produk/Distribusi berubah.
+     */
+    public const ANALYSIS_CACHE_KEY = 'c45_analysis';
+
     /**
      * Tampilkan hasil klasifikasi produk (predicted_label) terakhir.
      */
@@ -19,13 +29,15 @@ class PredictionController extends Controller
 
         $averageStock = round($products->avg('stock') ?? 0);
 
-        $tree = session('c45_tree');
-        $accuracy = session('c45_accuracy');
-        $totalTraining = session('c45_total');
-        $p33 = session('c45_p33');
-        $p66 = session('c45_p66');
-        $averageQuantity = session('c45_average_quantity');
-        $frequencyLevels = session('c45_frequency_levels', []);
+        $analysis = Cache::get(self::ANALYSIS_CACHE_KEY, []);
+
+        $tree = $analysis['tree'] ?? null;
+        $accuracy = $analysis['accuracy'] ?? null;
+        $totalTraining = $analysis['total'] ?? null;
+        $p33 = $analysis['p33'] ?? null;
+        $p66 = $analysis['p66'] ?? null;
+        $averageQuantity = $analysis['average_quantity'] ?? null;
+        $frequencyLevels = $analysis['frequency_levels'] ?? [];
 
         return view('predictions.index', compact('products', 'averageStock', 'tree', 'accuracy', 'totalTraining', 'p33', 'p66', 'averageQuantity', 'frequencyLevels'));
     }
@@ -85,18 +97,15 @@ class PredictionController extends Controller
 
         $accuracy = round(($correct / count($dataset)) * 100, 1);
 
-        // Disimpan dengan session()->put() (bukan flash()) supaya hasil analisis tetap ada
-        // selagi session pengguna aktif, walau berpindah-pindah halaman. Lihat
-        // Concerns\InvalidatesPredictionCache untuk penghapusannya saat data berubah.
-        session()->put([
-            'c45_tree' => $tree,
-            'c45_accuracy' => $accuracy,
-            'c45_total' => count($dataset),
-            'c45_p33' => $p33,
-            'c45_p66' => $p66,
-            'c45_average_quantity' => $averageQuantity,
-            'c45_frequency_levels' => collect($dataset)->pluck('frequency_level', 'product_id')->all(),
-            'c45_analyzed_at' => now(),
+        Cache::forever(self::ANALYSIS_CACHE_KEY, [
+            'tree' => $tree,
+            'accuracy' => $accuracy,
+            'total' => count($dataset),
+            'p33' => $p33,
+            'p66' => $p66,
+            'average_quantity' => $averageQuantity,
+            'frequency_levels' => collect($dataset)->pluck('frequency_level', 'product_id')->all(),
+            'analyzed_at' => now()->toIso8601String(),
         ]);
 
         return redirect()->route('predictions.index')->with(

@@ -25,7 +25,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Tidak ada route hapus akun: sistem hanya punya satu akun Admin dan tidak ada
+    // halaman registrasi, jadi menghapusnya akan mengunci aplikasi.
 });
 
 require __DIR__.'/auth.php';

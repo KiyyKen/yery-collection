@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Distribution;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class ReportController extends Controller
 {
@@ -14,8 +16,8 @@ class ReportController extends Controller
      */
     public function index(Request $request)
     {
-        $from = $request->date('from') ?? now()->startOfMonth();
-        $to = $request->date('to') ?? now();
+        $from = $this->queryDate($request, 'from') ?? now()->startOfMonth();
+        $to = $this->queryDate($request, 'to') ?? now();
 
         $distributions = Distribution::with('product')
             ->whereBetween('distribution_date', [$from, $to])
@@ -23,5 +25,19 @@ class ReportController extends Controller
             ->get();
 
         return view('reports.index', compact('distributions', 'from', 'to'));
+    }
+
+    /**
+     * Ambil parameter tanggal dari query string. Nilai yang bukan tanggal valid
+     * (mis. diketik manual di URL) dianggap kosong, supaya laporan kembali ke
+     * rentang default alih-alih error.
+     */
+    private function queryDate(Request $request, string $key): ?Carbon
+    {
+        try {
+            return $request->date($key);
+        } catch (InvalidFormatException) {
+            return null;
+        }
     }
 }

@@ -28,7 +28,7 @@
                     <div class="mt-4">
                         <x-input-label for="distribution_date" value="Tanggal Distribusi" />
                         <x-text-input id="distribution_date" name="distribution_date" type="date" class="mt-1 block w-full font-mono"
-                            :value="old('distribution_date', now()->toDateString())" required />
+                            :value="old('distribution_date', now()->toDateString())" :max="now()->toDateString()" required />
                         <x-input-error :messages="$errors->get('distribution_date')" class="mt-2" />
                     </div>
 

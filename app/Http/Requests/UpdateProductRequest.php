@@ -23,13 +23,13 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // Unique index di database juga mencakup produk yang sudah di-soft-delete,
+            // jadi validasinya ikut memeriksa semua baris (tanpa filter deleted_at).
             'code' => [
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('products', 'code')
-                    ->ignore($this->route('product'))
-                    ->where(fn ($query) => $query->whereNull('deleted_at')),
+                Rule::unique('products', 'code')->ignore($this->route('product')),
             ],
             'name' => ['required', 'string', 'max:150'],
             'category' => ['required', 'string', 'max:100'],
@@ -37,6 +37,18 @@ class UpdateProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'unit' => ['required', 'string', 'max:20'],
+        ];
+    }
+
+    /**
+     * Pesan validasi khusus.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'code.unique' => 'Kode produk sudah pernah dipakai, termasuk oleh produk yang sudah dihapus. Gunakan kode lain.',
         ];
     }
 }
