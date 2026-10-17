@@ -35,6 +35,9 @@
                                             @if ($user->is(auth()->user()))
                                                 <span class="px-2 py-0.5 bg-denim/10 text-denim text-xs font-semibold rounded-md">Anda</span>
                                             @endif
+                                            @if ($user->questionnaire_response_exists)
+                                                <span class="px-2 py-0.5 bg-moss/10 text-moss text-xs font-semibold rounded-md">Sudah isi kuesioner</span>
+                                            @endif
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-5 font-mono whitespace-nowrap">{{ $user->email }}</td>

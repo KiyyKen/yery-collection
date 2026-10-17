@@ -160,6 +160,23 @@ class UserManagementTest extends TestCase
         $this->assertNotNull($this->admin->fresh());
     }
 
+    public function test_user_who_filled_the_questionnaire_cannot_be_deleted(): void
+    {
+        $respondent = User::factory()->create(['name' => 'Responden']);
+        $respondent->questionnaireResponse()->create(['submitted_at' => now()]);
+
+        $this->actingAs($this->admin)
+            ->delete(route('users.destroy', $respondent))
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('error');
+
+        $this->assertNotNull($respondent->fresh());
+
+        $this->actingAs($this->admin)
+            ->get(route('users.index'))
+            ->assertSee('Sudah isi kuesioner');
+    }
+
     public function test_public_registration_page_does_not_exist(): void
     {
         $this->get('/register')->assertNotFound();

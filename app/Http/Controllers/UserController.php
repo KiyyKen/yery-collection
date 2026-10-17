@@ -14,7 +14,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::orderBy('name')->paginate(10);
+        $users = User::withExists('questionnaireResponse')->orderBy('name')->paginate(10);
 
         return view('users.index', compact('users'));
     }
@@ -73,6 +73,11 @@ class UserController extends Controller
         if ($user->is($request->user())) {
             return redirect()->route('users.index')
                 ->with('error', 'Anda tidak dapat menghapus akun yang sedang Anda gunakan.');
+        }
+
+        if ($user->questionnaireResponse()->exists()) {
+            return redirect()->route('users.index')
+                ->with('error', "Pengguna {$user->name} sudah mengisi kuesioner, sehingga tidak dapat dihapus agar hasil kuesioner tidak berubah.");
         }
 
         $user->delete();

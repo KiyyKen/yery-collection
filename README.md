@@ -56,12 +56,21 @@ Pencatatan distribusi barang di Toko Yery Collection selama ini dilakukan secara
 ## Fitur Utama
 
 - **Autentikasi Admin** — login dan logout. Tidak ada halaman registrasi publik.
-- **Kelola Pengguna** — tambah, ubah, dan hapus akun Admin lain. Semua akun setara (tanpa sistem role). Pengguna tidak dapat menghapus akunnya sendiri.
+- **Kelola Pengguna** — tambah, ubah, dan hapus akun Admin lain. Semua akun setara (tanpa sistem role). Pengguna tidak dapat menghapus akunnya sendiri, dan pengguna yang sudah mengisi kuesioner tidak dapat dihapus agar hasil kuesioner tidak berubah.
 - **Dashboard** — ringkasan jumlah produk, jumlah distribusi, grafik distribusi 6 bulan terakhir, daftar produk terlaris, hasil prediksi terbaru, dan rekomendasi restock.
 - **Kelola Data Produk** — tambah, ubah, hapus (soft delete), dan pencarian produk secara live (tanpa reload halaman).
 - **Kelola Data Distribusi** — tambah, ubah, hapus, dan pencarian data barang keluar secara live, dengan stok produk yang disesuaikan otomatis setiap kali terjadi transaksi.
 - **Prediksi Produk Terlaris** — menjalankan analisis klasifikasi C4.5 terhadap data distribusi, menampilkan visualisasi pohon keputusan, nilai akurasi model, label prediksi tiap produk, dan rekomendasi restock untuk produk berlabel "Laris" dengan stok menipis.
 - **Laporan Distribusi** — laporan barang keluar per rentang tanggal, dengan opsi cetak melalui fitur print bawaan browser.
+- **Kuesioner Kepuasan Pengguna** — setiap pengguna mengisi 10 pernyataan berskala Likert 1–5 (satu kali, tidak dapat diubah). Halaman hasil menampilkan jumlah responden, sebaran jawaban, total skor, indeks kepuasan per pernyataan dan keseluruhan, beserta interpretasinya.
+
+### Perhitungan Indeks Kuesioner
+
+Perhitungan dilakukan di `App\Services\QuestionnaireScorer`:
+
+- **Indeks per pernyataan** = total skor ÷ (5 × jumlah responden) × 100%
+- **Indeks keseluruhan** = total skor semua pernyataan ÷ (5 × jumlah responden × jumlah pernyataan) × 100%
+- **Interpretasi**: 0–20% Sangat Tidak Baik, >20–40% Tidak Baik, >40–60% Cukup, >60–80% Baik, >80–100% Sangat Baik.
 
 ## Algoritma C4.5
 
@@ -159,6 +168,14 @@ Seeder akan mengisi:
 - 1 akun Admin awal (akun lain ditambahkan lewat menu **Pengguna**).
 - **15 data produk asli Toko Yery Collection** (nama, kategori, ukuran, harga, dan stok sesuai hasil wawancara langsung dengan pemilik toko, satuan dalam lusin).
 - Data distribusi historis dengan **fixed random seed**, sehingga setiap `migrate:fresh --seed` selalu menghasilkan dataset yang identik dan hasil klasifikasi C4.5 dapat direproduksi secara konsisten.
+- 10 pernyataan kuesioner kepuasan pengguna.
+
+Kalau database sudah berisi data sebelum fitur kuesioner ditambahkan, cukup jalankan migrasi lalu seeder pertanyaannya saja (data lain tidak berubah):
+
+```bash
+php artisan migrate
+php artisan db:seed --class=QuestionnaireQuestionSeeder
+```
 
 ## Menjalankan Aplikasi
 

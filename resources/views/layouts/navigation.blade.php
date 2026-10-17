@@ -16,7 +16,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-7 lg:-my-px lg:ms-10 lg:flex">
+                <div class="hidden space-x-5 xl:space-x-8 lg:-my-px lg:ms-8 xl:ms-10 lg:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -35,6 +35,9 @@
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         {{ __('Pengguna') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('questionnaire.index')" :active="request()->routeIs('questionnaire.*')">
+                        {{ __('Kuesioner') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -43,7 +46,7 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent font-sans text-sm leading-4 font-medium rounded-md text-ink/70 bg-surface hover:text-denim focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+                            <div class="max-w-[10rem] truncate" title="{{ Auth::user()->name }}">{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -104,6 +107,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                 {{ __('Pengguna') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('questionnaire.index')" :active="request()->routeIs('questionnaire.*')">
+                {{ __('Kuesioner') }}
             </x-responsive-nav-link>
         </div>
 
