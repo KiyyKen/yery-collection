@@ -10,7 +10,7 @@
 
 ## Deskripsi Singkat
 
-Aplikasi web untuk mengelola pencatatan distribusi barang keluar pada Toko Yery Collection (usaha grosir celana anak), sekaligus memprediksi produk terlaris menggunakan algoritma klasifikasi C4.5 berdasarkan data historis distribusi. Dibangun dengan Laravel 12 sebagai project skripsi (tugas akhir), dengan satu aktor pengguna (Admin/Pemilik Toko).
+Aplikasi web untuk mengelola pencatatan distribusi barang keluar pada Toko Yery Collection (usaha grosir celana anak), sekaligus memprediksi produk terlaris menggunakan algoritma klasifikasi C4.5 berdasarkan data historis distribusi. Dibangun dengan Laravel 12 sebagai project skripsi (tugas akhir), dengan satu jenis aktor (Admin). Sistem bisa memiliki lebih dari satu akun Admin dengan hak akses yang setara.
 
 ## Latar Belakang
 
@@ -55,7 +55,8 @@ Pencatatan distribusi barang di Toko Yery Collection selama ini dilakukan secara
 
 ## Fitur Utama
 
-- **Autentikasi Admin** — login dan logout untuk satu akun Admin (Pemilik Toko).
+- **Autentikasi Admin** — login dan logout. Tidak ada halaman registrasi publik.
+- **Kelola Pengguna** — tambah, ubah, dan hapus akun Admin lain. Semua akun setara (tanpa sistem role). Pengguna tidak dapat menghapus akunnya sendiri.
 - **Dashboard** — ringkasan jumlah produk, jumlah distribusi, grafik distribusi 6 bulan terakhir, daftar produk terlaris, hasil prediksi terbaru, dan rekomendasi restock.
 - **Kelola Data Produk** — tambah, ubah, hapus (soft delete), dan pencarian produk secara live (tanpa reload halaman).
 - **Kelola Data Distribusi** — tambah, ubah, hapus, dan pencarian data barang keluar secara live, dengan stok produk yang disesuaikan otomatis setiap kali terjadi transaksi.
@@ -155,7 +156,7 @@ php artisan migrate:fresh --seed
 
 Seeder akan mengisi:
 
-- 1 akun Admin.
+- 1 akun Admin awal (akun lain ditambahkan lewat menu **Pengguna**).
 - **15 data produk asli Toko Yery Collection** (nama, kategori, ukuran, harga, dan stok sesuai hasil wawancara langsung dengan pemilik toko, satuan dalam lusin).
 - Data distribusi historis dengan **fixed random seed**, sehingga setiap `migrate:fresh --seed` selalu menghasilkan dataset yang identik dan hasil klasifikasi C4.5 dapat direproduksi secara konsisten.
 
