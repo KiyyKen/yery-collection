@@ -10,6 +10,15 @@
 
             <x-flash-messages />
 
+            @if ($rangeError)
+                <div role="alert" class="flex items-start gap-3 bg-surface border border-denim/10 border-l-4 border-l-brick rounded-xl shadow-sm px-4 py-3.5 print:hidden">
+                    <svg class="w-5 h-5 text-brick shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12V16.5zm9-4.5a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="font-sans text-sm text-ink">{{ $rangeError }}</p>
+                </div>
+            @endif
+
             <div class="bg-surface border border-denim/10 rounded-xl shadow-sm p-6 print:hidden">
                 <form method="GET" action="{{ route('reports.index') }}" class="flex flex-wrap items-end gap-4">
                     <div>
@@ -58,7 +67,7 @@
                             @empty
                                 <tr>
                                     <td colspan="5" class="py-6 text-center text-ink/40 font-sans">
-                                        Tidak ada data distribusi pada periode ini.
+                                        {{ $rangeError ? 'Perbaiki rentang tanggal untuk menampilkan laporan.' : 'Tidak ada data distribusi pada periode ini.' }}
                                     </td>
                                 </tr>
                             @endforelse

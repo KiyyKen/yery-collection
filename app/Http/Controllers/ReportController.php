@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Distribution;
 use Carbon\Exceptions\InvalidFormatException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -19,12 +20,22 @@ class ReportController extends Controller
         $from = $this->queryDate($request, 'from') ?? now()->startOfMonth();
         $to = $this->queryDate($request, 'to') ?? now();
 
+        // Rentang terbalik tidak di-query; halaman menampilkan pesan dan tabel kosong.
+        if ($from->copy()->startOfDay()->gt($to->copy()->startOfDay())) {
+            $distributions = new Collection();
+            $rangeError = 'Tanggal awal tidak boleh melebihi tanggal akhir.';
+
+            return view('reports.index', compact('distributions', 'from', 'to', 'rangeError'));
+        }
+
         $distributions = Distribution::with('product')
             ->whereBetween('distribution_date', [$from, $to])
             ->orderBy('distribution_date')
             ->get();
 
-        return view('reports.index', compact('distributions', 'from', 'to'));
+        $rangeError = null;
+
+        return view('reports.index', compact('distributions', 'from', 'to', 'rangeError'));
     }
 
     /**
