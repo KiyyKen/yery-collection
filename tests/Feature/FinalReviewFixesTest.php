@@ -36,6 +36,14 @@ class FinalReviewFixesTest extends TestCase
         ], $overrides);
     }
 
+    private function productWithDistribution(): Product
+    {
+        $product = Product::create($this->productData());
+        $product->distributions()->create(['distribution_date' => now()->toDateString(), 'quantity' => 2]);
+
+        return $product;
+    }
+
     public function test_code_of_deleted_product_is_rejected_with_validation_error_instead_of_server_error(): void
     {
         Product::create($this->productData())->delete();
@@ -89,7 +97,7 @@ class FinalReviewFixesTest extends TestCase
 
     public function test_analysis_result_survives_logout_and_login(): void
     {
-        Product::create($this->productData());
+        $this->productWithDistribution();
 
         $this->actingAs($this->admin)->post(route('predictions.process'));
         $this->assertNotNull(Cache::get(PredictionController::ANALYSIS_CACHE_KEY));
@@ -103,9 +111,11 @@ class FinalReviewFixesTest extends TestCase
 
     public function test_changing_data_clears_previous_analysis(): void
     {
-        $product = Product::create($this->productData());
+        $product = $this->productWithDistribution();
 
         $this->actingAs($this->admin)->post(route('predictions.process'));
+        $this->assertNotNull(Cache::get(PredictionController::ANALYSIS_CACHE_KEY));
+
         $this->put(route('products.update', $product), $this->productData(['stock' => 5]));
 
         $this->assertNull(Cache::get(PredictionController::ANALYSIS_CACHE_KEY));

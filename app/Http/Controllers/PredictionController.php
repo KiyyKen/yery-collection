@@ -60,6 +60,10 @@ class PredictionController extends Controller
             return redirect()->route('predictions.index')->with('error', 'Belum ada data produk untuk dianalisis.');
         }
 
+        if ($products->sum('distributions_count') === 0) {
+            return redirect()->route('predictions.index')->with('error', 'Belum ada data distribusi untuk dianalisis.');
+        }
+
         $frequencies = $products->pluck('distributions_count')->all();
         $p33 = $this->percentile($frequencies, 33);
         $p66 = $this->percentile($frequencies, 66);
