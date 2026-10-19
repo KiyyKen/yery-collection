@@ -96,10 +96,9 @@
                         </p>
                         <p>
                             Interpretasi indeks:
-                            @php $lower = 0; @endphp
-                            @foreach ($interpretations as $upper => $label)
-                                {{ $lower === 0 ? '0' : '>'.$lower }}–{{ $upper }}% {{ $label }}@if (! $loop->last), @endif
-                                @php $lower = $upper; @endphp
+                            @php $bounds = array_keys($interpretations); @endphp
+                            @foreach ($interpretations as $lower => $label)
+                                <span class="font-mono">{{ $lower }} ≤ x {{ $loop->last ? '≤ 100' : '< '.$bounds[$loop->index + 1] }}</span> {{ $label }}@if (! $loop->last), @endif
                             @endforeach
                         </p>
                     </div>

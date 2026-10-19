@@ -28,15 +28,16 @@ class QuestionnaireScorer
     ];
 
     /**
-     * Rentang interpretasi indeks (%): batas atas inklusif => kategori.
-     * 0–20 Sangat Tidak Baik, >20–40 Tidak Baik, >40–60 Cukup, >60–80 Baik, >80–100 Sangat Baik.
+     * Rentang interpretasi indeks (%): batas bawah inklusif => kategori.
+     * 0 ≤ x < 20 Sangat Tidak Baik, 20 ≤ x < 40 Kurang Baik, 40 ≤ x < 60 Netral,
+     * 60 ≤ x < 80 Baik, 80 ≤ x ≤ 100 Sangat Baik.
      */
     public const INTERPRETATIONS = [
-        20 => 'Sangat Tidak Baik',
-        40 => 'Tidak Baik',
-        60 => 'Cukup',
-        80 => 'Baik',
-        100 => 'Sangat Baik',
+        0 => 'Sangat Tidak Baik',
+        20 => 'Kurang Baik',
+        40 => 'Netral',
+        60 => 'Baik',
+        80 => 'Sangat Baik',
     ];
 
     /**
@@ -104,13 +105,15 @@ class QuestionnaireScorer
      */
     public static function interpret(float $index): string
     {
-        foreach (self::INTERPRETATIONS as $upperBound => $label) {
-            if ($index <= $upperBound) {
-                return $label;
+        $result = self::INTERPRETATIONS[array_key_first(self::INTERPRETATIONS)];
+
+        foreach (self::INTERPRETATIONS as $lowerBound => $label) {
+            if ($index >= $lowerBound) {
+                $result = $label;
             }
         }
 
-        return self::INTERPRETATIONS[array_key_last(self::INTERPRETATIONS)];
+        return $result;
     }
 
     /**

@@ -170,16 +170,16 @@ class QuestionnaireTest extends TestCase
 
         // [total skor, indeks %, interpretasi] per pernyataan; maksimum per pernyataan = 5 x 3 = 15.
         $expected = [
-            [12, 80.00, 'Baik'],              // 12/15 — tepat di batas 80 masih "Baik"
+            [12, 80.00, 'Sangat Baik'],       // 12/15 — tepat di batas 80 sudah "Sangat Baik"
             [15, 100.00, 'Sangat Baik'],
-            [3, 20.00, 'Sangat Tidak Baik'],  // tepat di batas 20
-            [6, 40.00, 'Tidak Baik'],         // tepat di batas 40
-            [7, 46.67, 'Cukup'],              // 7/15 = 46,666...
-            [9, 60.00, 'Cukup'],              // tepat di batas 60
-            [12, 80.00, 'Baik'],
+            [3, 20.00, 'Kurang Baik'],        // tepat di batas 20
+            [6, 40.00, 'Netral'],             // tepat di batas 40
+            [7, 46.67, 'Netral'],             // 7/15 = 46,666...
+            [9, 60.00, 'Baik'],               // tepat di batas 60
+            [12, 80.00, 'Sangat Baik'],
             [13, 86.67, 'Sangat Baik'],
             [11, 73.33, 'Baik'],
-            [6, 40.00, 'Tidak Baik'],
+            [6, 40.00, 'Netral'],
         ];
 
         foreach ($expected as $i => [$total, $index, $interpretation]) {
@@ -202,6 +202,9 @@ class QuestionnaireTest extends TestCase
             ->get(route('questionnaire.results'))
             ->assertOk()
             ->assertSee('62,67%')
+            ->assertSee('Kurang Baik')
+            ->assertSee('Netral')
+            ->assertDontSee('Cukup')
             ->assertSee('Responden A')
             ->assertSee('Responden C');
     }
@@ -210,14 +213,14 @@ class QuestionnaireTest extends TestCase
     {
         $cases = [
             [0, 'Sangat Tidak Baik'],
-            [20, 'Sangat Tidak Baik'],
-            [20.01, 'Tidak Baik'],
-            [40, 'Tidak Baik'],
-            [40.01, 'Cukup'],
-            [60, 'Cukup'],
-            [60.01, 'Baik'],
-            [80, 'Baik'],
-            [80.01, 'Sangat Baik'],
+            [19.99, 'Sangat Tidak Baik'],
+            [20, 'Kurang Baik'],
+            [39.99, 'Kurang Baik'],
+            [40, 'Netral'],
+            [59.99, 'Netral'],
+            [60, 'Baik'],
+            [79.99, 'Baik'],
+            [80, 'Sangat Baik'],
             [100, 'Sangat Baik'],
         ];
 

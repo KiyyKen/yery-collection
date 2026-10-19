@@ -70,7 +70,7 @@ Perhitungan dilakukan di `App\Services\QuestionnaireScorer`:
 
 - **Indeks per pernyataan** = total skor ÷ (5 × jumlah responden) × 100%
 - **Indeks keseluruhan** = total skor semua pernyataan ÷ (5 × jumlah responden × jumlah pernyataan) × 100%
-- **Interpretasi**: 0–20% Sangat Tidak Baik, >20–40% Tidak Baik, >40–60% Cukup, >60–80% Baik, >80–100% Sangat Baik.
+- **Interpretasi** (x = indeks %): 0 ≤ x < 20 Sangat Tidak Baik, 20 ≤ x < 40 Kurang Baik, 40 ≤ x < 60 Netral, 60 ≤ x < 80 Baik, 80 ≤ x ≤ 100 Sangat Baik.
 
 ## Algoritma C4.5
 
