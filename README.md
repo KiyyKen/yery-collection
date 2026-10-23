@@ -165,10 +165,10 @@ php artisan migrate:fresh --seed
 
 Seeder akan mengisi:
 
-- 1 akun Admin awal (akun lain ditambahkan lewat menu **Pengguna**).
+- 4 akun awal (Admin Yery Collection, Dafa Hervansyah, Rangga Abdi, Fathir Muhammad) dengan password `password`. Akun lain bisa ditambahkan lewat menu **Pengguna**.
 - **15 data produk asli Toko Yery Collection** (nama, kategori, ukuran, harga, dan stok sesuai hasil wawancara langsung dengan pemilik toko, satuan dalam lusin).
 - Data distribusi historis dengan **fixed random seed**, sehingga setiap `migrate:fresh --seed` selalu menghasilkan dataset yang identik dan hasil klasifikasi C4.5 dapat direproduksi secara konsisten.
-- 10 pernyataan kuesioner kepuasan pengguna.
+- 10 pernyataan kuesioner kepuasan pengguna, beserta jawaban dari 4 akun awal (indeks keseluruhan 95,50%, Sangat Baik).
 
 Kalau database sudah berisi data sebelum fitur kuesioner ditambahkan, cukup jalankan migrasi lalu seeder pertanyaannya saja (data lain tidak berubah):
 
@@ -190,9 +190,11 @@ Aplikasi dapat diakses di `http://localhost:8000`.
 
 | Email | Password |
 |---|---|
-| `admin@yerycollection.test` | `password` |
+| `yery123@gmail.com` | `password` |
 
-*(sesuai `database/seeders/DatabaseSeeder.php`)*
+Akun lain hasil seeder: `dafahervansyah10@gmail.com`, `ranggaadz@gmail.com`, `fathir2020@gmail.com` (password sama).
+
+*(sesuai `database/seeders/UserSeeder.php`)*
 
 ## Alur Prediksi
 
